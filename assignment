@@ -1,0 +1,39 @@
+# Loading the data.
+df_clean <- eq_clean_data(file_name = raw_data_path)
+
+# Subsetting the df_clean to select some countries in Asia.
+df_asia <- df_clean %>%
+       dplyr::filter(COUNTRY %in% c("INDONESIA","THAILAND", "MYANMAR (BURMA)", "JAPAN"),
+                     YEAR > 2000 & YEAR <= 2019)
+
+# Plotting.
+df_asia %>%
+       ggplot2::ggplot() +
+
+              # Defining the aes.
+              msdr::geom_timeline(ggplot2::aes(x     = DATE,
+                                               y     = COUNTRY,
+                                               size  = EQ_PRIMARY,
+                                               color = TOTAL_DEATHS) +
+       # Adding theme
+       msdr::theme_msdr() +
+
+              # Editing the legends' titles
+              ggplot2::labs(color = "# deaths",
+                            size  = "Richter scale value") +
+
+       # Adding annotations
+       msdr::geom_timeline_label(ggplot2::aes(x     = DATE,
+                                              label = LOCATION,
+                                              y     = COUNTRY,
+                                              mag   = EQ_PRIMARY,
+                                              n_max = 10))
+# Creating a new data.
+df_america <- df_clean %>% dplyr::filter(COUNTRY %in% c('USA','MEXICO','CANADA'),
+                                         YEAR > 1990 & YEAR < 2019)
+
+# Creating a complex text using the eq_create_label.
+df_america %>%
+       dplyr::mutate(popup_text = msdr::eq_create_label(.)) %>%
+              msdr::eq_map(annot_col = 'popup_text')
+
